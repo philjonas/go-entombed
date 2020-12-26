@@ -1,4 +1,4 @@
-# Go Entombed
+# Entombed
 
 The Go version of the algorithm found in the famous Atari 2600 game
 
