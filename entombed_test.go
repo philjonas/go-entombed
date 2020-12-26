@@ -75,3 +75,36 @@ func TestDoTheMagicBitNow(t *testing.T) {
 		}
 	}
 }
+
+type renderLineTestCase struct {
+	row      uint
+	expected string
+}
+
+func TestRenderLine(t *testing.T) {
+	tests := []renderLineTestCase{
+		{
+			row:      0b10101010,
+			expected: "XX X X X  X X X XX",
+		},
+		{
+			row:      0b11111111,
+			expected: "XXXXXXXXXXXXXXXXXX",
+		},
+		{
+			row:      0b00000000,
+			expected: "X                X",
+		},
+		{
+			row:      0b00100010,
+			expected: "X  X   X  X   X  X",
+		},
+	}
+
+	for _, test := range tests {
+		result := RenderLine(test.row)
+		if result != test.expected {
+			t.Errorf("RenderLine(%b), expected: %s, got: %s", test.row, test.expected, result)
+		}
+	}
+}

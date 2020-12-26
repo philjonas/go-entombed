@@ -128,8 +128,25 @@ func doTheMagicBitNow(lasttwo, threeabove uint) int {
 	return response
 }
 
-/*
-public:
-	std::string render_line(unsigned int row)
-	void rowGen(std::vector<unsigned int> &lastrows)
-*/
+// RenderLine prints an integer added to its mirrored bits as a string
+func RenderLine(row uint) string {
+	PF12 := ""
+
+	for i := 0; i < 8; i++ {
+		if row&1 == 1 {
+			PF12 = "X" + PF12
+		} else {
+			PF12 = " " + PF12
+		}
+		row >>= 1
+	}
+	PF012 := "X" + PF12
+	mirrorPF012 := ""
+	for n := len(PF012) - 1; n >= 0; n-- {
+		mirrorPF012 += string(PF012[n])
+	}
+	return PF012 + mirrorPF012
+}
+
+// GenerateRow takes a slice of 12 rows, removes the first row and adds one to the end
+func GenerateRow(lastrows *[]uint) {}
