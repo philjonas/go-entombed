@@ -1,4 +1,4 @@
-package main
+package entombed
 
 func main() {
 	println("hello")
