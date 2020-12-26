@@ -1,6 +1,9 @@
-package entombed
+package main
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+)
 
 const (
 	isWall     = 1
@@ -149,4 +152,78 @@ func RenderLine(row uint) string {
 }
 
 // GenerateRow takes a slice of 12 rows, removes the first row and adds one to the end
-func GenerateRow(lastrows *[]uint) {}
+func GenerateRow(lastrows []uint) ([]uint, error) {
+	if len(lastrows) == 0 {
+		return nil, fmt.Errorf("Slice must not be empty")
+	}
+	lastIndex := len(lastrows) - 1
+	// prepend and  append randombits  to last   row
+	lastrowpadded := getRandomBit()
+	lastrowpadded <<= 8
+	lastrowpadded |= lastrows[lastIndex]
+	lastrowpadded <<= 1
+	lastrowpadded |= getRandomBit()
+	// last   two  bits  generatedin currentrow, initialvalue = 10
+	var lasttwo uint = 0b10
+	var newrow uint = 0
+	// iteratefrom  7...0, inclusive
+	for i := 7; i > -1; i-- {
+		threeabove := (lastrowpadded >> i) & 0b111
+		newbit := doTheMagicBitNow(lasttwo, threeabove)
+		if newbit == randomWall {
+			newbit = int(getRandomBit())
+		}
+		newrow = (newrow << 1) | uint(newbit)
+		lasttwo = ((lasttwo << 1) | uint(newbit)) & 0b11
+	}
+
+	// now  do postprocessing
+	// add last row
+	lastrows = append(lastrows, newrow)
+	// keep array 12 units long
+	if len(lastrows) > 12 {
+		_, lastrows = lastrows[0], lastrows[1:]
+	}
+	lastIndex = len(lastrows) - 1
+
+	// postprocessing condition 1
+	history := make([]uint, 0)
+	for _, b := range lastrows {
+		history = append(history, b&0xf0)
+	}
+	if !isZeroPresent(history) {
+		var hsum uint = 0
+		for _, b := range history {
+			hsum += b & 0x80
+		}
+		if hsum == 0 {
+			lastrows[len(lastrows)-1] = 0
+		}
+	}
+
+	// postprocessing condition2
+	// instead of all 12 rows, get only the last 7
+	history2 := make([]uint, 0)
+	first := lastIndex - 6
+	if first < 0 {
+		first = 0
+	}
+	for i := first; i <= lastIndex; i++ {
+		history2 = append(history2, lastrows[i]&0xf)
+	}
+	if !isZeroPresent(history2) {
+		var comparator uint = 0
+		if len(lastrows) >= 9 {
+			comparator = lastrows[lastIndex-8]
+		}
+		var csum uint = 0
+		for _, b := range history2 {
+			csum += (b & 1)
+		}
+		cmult := (comparator & 1) * 7
+		if csum == cmult {
+			lastrows[lastIndex] &= 0xf0
+		}
+	}
+	return lastrows, nil
+}

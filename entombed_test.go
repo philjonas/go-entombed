@@ -1,6 +1,8 @@
-package entombed
+package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetRandomBit(t *testing.T) {
 	result := getRandomBit()
@@ -106,5 +108,50 @@ func TestRenderLine(t *testing.T) {
 		if result != test.expected {
 			t.Errorf("RenderLine(%b), expected: %s, got: %s", test.row, test.expected, result)
 		}
+	}
+}
+
+func TestGenerateRow(t *testing.T) {
+	rows := []uint{128}
+	var err error
+
+	for i := 0; i < 10; i++ {
+		rows, err = GenerateRow(rows)
+	}
+
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+
+	rowsLength := len(rows)
+	expectedLength := 11
+	if rowsLength != expectedLength {
+		t.Errorf("Slice should have only %d rows, got %d",
+			expectedLength, rowsLength)
+	}
+
+	for i := 0; i < 10; i++ {
+		rows, err = GenerateRow(rows)
+	}
+
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+
+	rowsLength = len(rows)
+	expectedLength = 12
+	if rowsLength != expectedLength {
+		t.Errorf("Slice should have only %d rows, got %d",
+			expectedLength, rowsLength)
+	}
+
+	rows2 := []uint{}
+
+	for i := 0; i < 20; i++ {
+		rows2, err = GenerateRow(rows2)
+	}
+
+	if err == nil {
+		t.Errorf("An empty slice is not a valid parameter")
 	}
 }
